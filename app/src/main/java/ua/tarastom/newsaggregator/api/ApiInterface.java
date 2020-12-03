@@ -14,4 +14,13 @@ public interface ApiInterface {
 
     );
 
+    @GET("everything")
+    Call<News> getNewsSearch(
+            @Query("q") String keyWord,
+            @Query("language") String language,
+            @Query("sortBy") String sortBy,
+            @Query("apiKey") String apiKey
+
+    );
+
 }

@@ -10,8 +10,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.NewsAggregator">
+        android:theme="@style/Theme.NewsAggregator"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".NewsDetailActivity"
+            android:theme="@style/Theme.NewsAggregator.NoActionBar" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

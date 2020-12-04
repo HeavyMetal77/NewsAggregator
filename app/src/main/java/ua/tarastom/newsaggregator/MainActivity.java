@@ -1,6 +1,7 @@
 package ua.tarastom.newsaggregator;
 
 import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setColorSchemeResources(R.color.purple_200);
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary, R.color.purple_500);
         topHeadLines = findViewById(R.id.topHeadLines);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     adapter.setArticles(articles);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
                     recyclerView.setAdapter(adapter);
+                    initListener();
                     topHeadLines.setVisibility(View.VISIBLE);
                     swipeRefreshLayout.setRefreshing(false);
                 } else {
@@ -91,6 +93,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         });
     }
 
+    private void initListener() {
+        adapter.setOnItemClickListener((position) -> {
+            Intent intent = new Intent(MainActivity.this, NewsDetailActivity.class);
+            Article article = articles.get(position);
+            intent.putExtra("url", article.getUrl());
+            intent.putExtra("title", article.getTitle());
+            intent.putExtra("img", article.getUrlToImage());
+            intent.putExtra("source", article.getSource().getName());
+            intent.putExtra("date", article.getPublishedAt());
+            intent.putExtra("author", article.getAuthor());
+            startActivity(intent);
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -99,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setQueryHint("Search Latest News...");
+        searchView.setQueryHint("Search latest News...");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {

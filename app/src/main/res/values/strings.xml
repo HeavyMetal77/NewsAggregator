@@ -8,4 +8,8 @@
     <string name="top_headlines">Top HeadLines</string>
     <string name="settings">Settings</string>
     <string name="search">Search</string>
+    <string name="icon_calendar">icon calendar</string>
+    <string name="img_shadow">img shadow</string>
+    <string name="img_top_shadow">img top shadow</string>
+    <string name="img_of_news">img of news</string>
 </resources>

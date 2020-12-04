@@ -12,4 +12,10 @@
     <string name="img_shadow">img shadow</string>
     <string name="img_top_shadow">img top shadow</string>
     <string name="img_of_news">img of news</string>
+    <string name="share">Share</string>
+    <string name="open_with_browser">Open with browser</string>
+    <string name="error_title">Error Title</string>
+    <string name="error_message">Error Message</string>
+    <string name="img_error">img error</string>
+    <string name="retry">Retry</string>
 </resources>

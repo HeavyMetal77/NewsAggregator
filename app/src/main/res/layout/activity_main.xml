@@ -11,6 +11,8 @@
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorBackground">
 
         <androidx.core.widget.NestedScrollView
@@ -48,5 +50,7 @@
         </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <include layout="@layout/error" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

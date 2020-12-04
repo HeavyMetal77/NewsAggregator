@@ -7,12 +7,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
@@ -39,6 +40,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private ArticleAdapter adapter;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView topHeadLines;
+    private ConstraintLayout errorLayout;
+    private ImageView errorImage;
+    private TextView errorTitle, errorMessage;
+    private Button buttonRetry;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +58,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setNestedScrollingEnabled(false);
         onLoadingSwipeRefresh("");
+        errorLayout = findViewById(R.id.error_layout);
+        errorImage = findViewById(R.id.imageViewError);
+        errorTitle = findViewById(R.id.error_title);
+        errorMessage = findViewById(R.id.error_message);
+        buttonRetry = findViewById(R.id.buttonRetry);
     }
 
     public void loadJson(final String keyWord) {
+        errorLayout.setVisibility(View.GONE);
         topHeadLines.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
@@ -85,7 +96,19 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 } else {
                     topHeadLines.setVisibility(View.INVISIBLE);
                     swipeRefreshLayout.setRefreshing(false);
-                    Toast.makeText(MainActivity.this, "No result", Toast.LENGTH_SHORT).show();
+                    String errorCode;
+                    switch (response.code()) {
+                        case 404:
+                            errorCode = "404 not found";
+                            break;
+                        case 500:
+                            errorCode = "500 server broken";
+                            break;
+                        default:
+                            errorCode = "unknown error";
+                            break;
+                    }
+                    showErrorMessage(R.drawable.no_result, "No result", "Please try again\n" + errorCode);
                 }
             }
 
@@ -93,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             public void onFailure(Call<News> call, Throwable t) {
                 topHeadLines.setVisibility(View.INVISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
+                showErrorMessage(R.drawable.no_result, "Oops...", "Network failure, please try again\n" + t.toString());
+
             }
         });
     }
@@ -111,11 +136,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
             Pair<View, String> pair = Pair.create(imageView, ViewCompat.getTransitionName(imageView));
             ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, pair);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                startActivity(intent, activityOptionsCompat.toBundle());
-//            } else {
-//                startActivity(intent);
-//            }
             startActivity(intent, activityOptionsCompat.toBundle());
         });
     }
@@ -155,5 +175,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private void onLoadingSwipeRefresh(final String keyword) {
         swipeRefreshLayout.post(() -> loadJson(keyword));
+    }
+
+    private void showErrorMessage(int imageView, String title, String message) {
+        if (errorLayout.getVisibility() == View.GONE) {
+            errorLayout.setVisibility(View.VISIBLE);
+        }
+        errorImage.setImageResource(imageView);
+        errorTitle.setText(title);
+        errorMessage.setText(message);
+        buttonRetry.setOnClickListener(view -> onLoadingSwipeRefresh(""));
     }
 }

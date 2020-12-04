@@ -7,11 +7,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -74,8 +78,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     adapter = new ArticleAdapter(MainActivity.this);
                     adapter.setArticles(articles);
                     recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
-                    recyclerView.setAdapter(adapter);
                     initListener();
+                    recyclerView.setAdapter(adapter);
                     topHeadLines.setVisibility(View.VISIBLE);
                     swipeRefreshLayout.setRefreshing(false);
                 } else {
@@ -94,7 +98,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     private void initListener() {
-        adapter.setOnItemClickListener((position) -> {
+        adapter.setOnItemClickListener((view, position) -> {
+            ImageView imageView = view.findViewById(R.id.img_news);
             Intent intent = new Intent(MainActivity.this, NewsDetailActivity.class);
             Article article = articles.get(position);
             intent.putExtra("url", article.getUrl());
@@ -103,7 +108,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             intent.putExtra("source", article.getSource().getName());
             intent.putExtra("date", article.getPublishedAt());
             intent.putExtra("author", article.getAuthor());
-            startActivity(intent);
+
+            Pair<View, String> pair = Pair.create(imageView, ViewCompat.getTransitionName(imageView));
+            ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, pair);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+//                startActivity(intent, activityOptionsCompat.toBundle());
+//            } else {
+//                startActivity(intent);
+//            }
+            startActivity(intent, activityOptionsCompat.toBundle());
         });
     }
 

@@ -56,7 +56,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
     }
 
     interface OnItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(View view, int position);
     }
 
     @NonNull
@@ -115,7 +115,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         return articles.size();
     }
 
-
     class ArticleHolder extends RecyclerView.ViewHolder{
         TextView title, description, author, publishedAt, source, time;
         ImageView img_news;
@@ -135,7 +134,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
 
             itemView.setOnClickListener(view -> {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClick(getAdapterPosition());
+                    onItemClickListener.onItemClick(view, getAdapterPosition());
                 }
             });
         }

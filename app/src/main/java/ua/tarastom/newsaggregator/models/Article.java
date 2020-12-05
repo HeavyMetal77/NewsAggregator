@@ -3,12 +3,23 @@ package ua.tarastom.newsaggregator.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Article {
 
+    @SerializedName("language")
+    @Expose
+    private String language;
+
     @SerializedName("source")
     @Expose
-    private Source source;
+    private String source;
+
+    @SerializedName("category")
+    @Expose
+    private List<String> category;
 
     @SerializedName("author")
     @Expose
@@ -34,12 +45,8 @@ public class Article {
     @Expose
     private String publishedAt;
 
-    public Source getSource() {
-        return source;
-    }
-
-    public void setSource(Source source) {
-        this.source = source;
+    public Article() {
+        category = new ArrayList<>();
     }
 
     public String getAuthor() {
@@ -90,4 +97,28 @@ public class Article {
         this.publishedAt = publishedAt;
     }
 
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public List<String> getCategory() {
+        return category;
+    }
+
+    public void setCategory(List<String> category) {
+        this.category = category;
+    }
 }

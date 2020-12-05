@@ -20,7 +20,6 @@ public interface ApiInterface {
             @Query("language") String language,
             @Query("sortBy") String sortBy,
             @Query("apiKey") String apiKey
-
     );
 
 }

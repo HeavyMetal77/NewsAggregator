@@ -25,13 +25,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import ua.tarastom.newsaggregator.api.ApiClient;
-import ua.tarastom.newsaggregator.api.ApiInterface;
 import ua.tarastom.newsaggregator.models.Article;
-import ua.tarastom.newsaggregator.models.News;
+import ua.tarastom.newsaggregator.utils.parsers.ParserRSS5Channel;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String API_KEY = "ecfec3848d274309b22c5b9dac6a46df";
@@ -65,61 +60,82 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         buttonRetry = findViewById(R.id.buttonRetry);
     }
 
-    public void loadJson(final String keyWord) {
+//    public void loadJson(final String keyWord) {
+//        errorLayout.setVisibility(View.GONE);
+//        topHeadLines.setVisibility(View.INVISIBLE);
+//        swipeRefreshLayout.setRefreshing(true);
+//        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+//        String country = Utils.getCountry();
+//        String language = Utils.getLanguage();
+//        Call<News> call;
+//        if (keyWord.length() > 0) {
+//            call = apiInterface.getNewsSearch(keyWord, language, "publishedAt", API_KEY);
+//        } else {
+//            call = apiInterface.getNews(country, API_KEY);
+//        }
+//        call.enqueue(new Callback<News>() {
+//            @Override
+//            public void onResponse(Call<News> call, Response<News> response) {
+//                if (response.isSuccessful() && response.body().getArticles() != null) {
+//                    if (!articles.isEmpty()) {
+//                        articles.clear();
+//                    }
+//                    articles = response.body().getArticles();
+//                    adapter = new ArticleAdapter(MainActivity.this);
+//                    adapter.setArticles(articles);
+//                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
+//                    initListener();
+//                    recyclerView.setAdapter(adapter);
+//                    topHeadLines.setVisibility(View.VISIBLE);
+//                    swipeRefreshLayout.setRefreshing(false);
+//                } else {
+//                    topHeadLines.setVisibility(View.INVISIBLE);
+//                    swipeRefreshLayout.setRefreshing(false);
+//                    String errorCode;
+//                    switch (response.code()) {
+//                        case 404:
+//                            errorCode = "404 not found";
+//                            break;
+//                        case 500:
+//                            errorCode = "500 server broken";
+//                            break;
+//                        default:
+//                            errorCode = "unknown error";
+//                            break;
+//                    }
+//                    showErrorMessage(R.drawable.no_result, "No result", "Please try again\n" + errorCode);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<News> call, Throwable t) {
+//                topHeadLines.setVisibility(View.INVISIBLE);
+//                swipeRefreshLayout.setRefreshing(false);
+//                showErrorMessage(R.drawable.no_result, "Oops...", "Network failure, please try again\n" + t.toString());
+//
+//            }
+//        });
+//    }
+
+    public void loadJsonRSS(final String keyWord) {
         errorLayout.setVisibility(View.GONE);
         topHeadLines.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
-        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        String country = Utils.getCountry();
-        String language = Utils.getLanguage();
-        Call<News> call;
-        if (keyWord.length() > 0) {
-            call = apiInterface.getNewsSearch(keyWord, language, "publishedAt", API_KEY);
+
+        articles = loadRSS();
+        if (!articles.isEmpty()) {
+            adapter = new ArticleAdapter(MainActivity.this);
+            adapter.setArticles(articles);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
+            initListener();
+            recyclerView.setAdapter(adapter);
+            topHeadLines.setVisibility(View.VISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
         } else {
-            call = apiInterface.getNews(country, API_KEY);
+            topHeadLines.setVisibility(View.INVISIBLE);
+            swipeRefreshLayout.setRefreshing(false);
+            showErrorMessage(R.drawable.no_result, "No result, unknown error", "Please try again\n");
         }
-        call.enqueue(new Callback<News>() {
-            @Override
-            public void onResponse(Call<News> call, Response<News> response) {
-                if (response.isSuccessful() && response.body().getArticles() != null) {
-                    if (!articles.isEmpty()) {
-                        articles.clear();
-                    }
-                    articles = response.body().getArticles();
-                    adapter = new ArticleAdapter(MainActivity.this);
-                    adapter.setArticles(articles);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
-                    initListener();
-                    recyclerView.setAdapter(adapter);
-                    topHeadLines.setVisibility(View.VISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
-                } else {
-                    topHeadLines.setVisibility(View.INVISIBLE);
-                    swipeRefreshLayout.setRefreshing(false);
-                    String errorCode;
-                    switch (response.code()) {
-                        case 404:
-                            errorCode = "404 not found";
-                            break;
-                        case 500:
-                            errorCode = "500 server broken";
-                            break;
-                        default:
-                            errorCode = "unknown error";
-                            break;
-                    }
-                    showErrorMessage(R.drawable.no_result, "No result", "Please try again\n" + errorCode);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<News> call, Throwable t) {
-                topHeadLines.setVisibility(View.INVISIBLE);
-                swipeRefreshLayout.setRefreshing(false);
-                showErrorMessage(R.drawable.no_result, "Oops...", "Network failure, please try again\n" + t.toString());
-
-            }
-        });
     }
 
     private void initListener() {
@@ -130,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             intent.putExtra("url", article.getUrl());
             intent.putExtra("title", article.getTitle());
             intent.putExtra("img", article.getUrlToImage());
-            intent.putExtra("source", article.getSource().getName());
+            intent.putExtra("source", article.getSource());
             intent.putExtra("date", article.getPublishedAt());
             intent.putExtra("author", article.getAuthor());
 
@@ -170,11 +186,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        loadJson("");
+        loadJsonRSS("");
     }
 
     private void onLoadingSwipeRefresh(final String keyword) {
-        swipeRefreshLayout.post(() -> loadJson(keyword));
+        swipeRefreshLayout.post(() -> loadJsonRSS(keyword));
     }
 
     private void showErrorMessage(int imageView, String title, String message) {
@@ -185,5 +201,21 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         errorTitle.setText(title);
         errorMessage.setText(message);
         buttonRetry.setOnClickListener(view -> onLoadingSwipeRefresh(""));
+    }
+
+    private List<Article> loadRSS() {
+//        String url = "https://censor.net/includes/resonance_uk.xml";
+//        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
+//        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
+        String url = "https://www.5.ua/novyny/rss";
+        ParserRSS5Channel parserRSS = new ParserRSS5Channel(url);
+        Thread thread = new Thread(parserRSS);
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return parserRSS.getArticles();
     }
 }

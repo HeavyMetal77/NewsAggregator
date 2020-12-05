@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ua.tarastom.newsaggregator.models.Article;
+import ua.tarastom.newsaggregator.utils.Utils;
 
 
 public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleHolder> {
@@ -101,9 +102,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
             holder.author.setText(article.getAuthor());
         }
         holder.description.setText(article.getDescription());
-        if (article.getSource() != null) {
-            holder.source.setText(article.getSource().getName());
-        }
+        holder.source.setText(article.getSource());
         holder.publishedAt.setText(Utils.DateToTimeFormat(article.getPublishedAt()));
         holder.time.setText(Utils.DateToTimeFormat(article.getPublishedAt()));
         Log.d("ArticleAdapter", "onBindViewHolder() - " + article.getDescription());

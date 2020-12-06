@@ -41,8 +41,7 @@ public class Utils {
 //        } else {
             PrettyTime p = new PrettyTime(new Locale(getCountry()));
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",
-                        Locale.ENGLISH);
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
                 Date date = sdf.parse(stringDate);
                 isTime = p.format(date);
             } catch (ParseException e) {
@@ -54,20 +53,20 @@ public class Utils {
 
     public static String DateFormat(String stringDate) {
         String newDate = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy",
-                new Locale(getCountry()));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy", new Locale(getCountry()));
+        newDate = dateFormat.format(getDate(stringDate));
+        return newDate;
+    }
+
+    public static Date getDate(String stringDate) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+        Date date = null;
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",
-                    Locale.ENGLISH);
-            Date date = sdf.parse(stringDate);
-            if (date != null) {
-                newDate = dateFormat.format(date);
-            }
+            date = sdf.parse(stringDate);
         } catch (ParseException e) {
             e.printStackTrace();
-            newDate = stringDate;
         }
-        return newDate;
+        return date;
     }
 
     public static String getCountry() {

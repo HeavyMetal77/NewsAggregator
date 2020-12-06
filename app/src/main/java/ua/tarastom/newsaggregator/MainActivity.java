@@ -23,10 +23,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import ua.tarastom.newsaggregator.models.Article;
-import ua.tarastom.newsaggregator.utils.parsers.ParserRSS5Channel;
+import ua.tarastom.newsaggregator.utils.parsers.ParserRss5Channel;
+import ua.tarastom.newsaggregator.utils.parsers.ParserRssRadioSvoboda;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String API_KEY = "ecfec3848d274309b22c5b9dac6a46df";
@@ -207,15 +213,31 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 //        String url = "https://censor.net/includes/resonance_uk.xml";
 //        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
 //        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
-        String url = "https://www.5.ua/novyny/rss";
-        ParserRSS5Channel parserRSS = new ParserRSS5Channel(url);
-        Thread thread = new Thread(parserRSS);
-        thread.start();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(8);
+
+        String url1 = "https://www.5.ua/novyny/rss";
+        String url2 = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
+        ParserRss5Channel parserRss5Channel = new ParserRss5Channel(url1);
+        ParserRssRadioSvoboda parserRssRadioSvoboda = new ParserRssRadioSvoboda(url2);
+        Future submit1 = executorService.submit(parserRss5Channel);
+        Future submit2 = executorService.submit(parserRssRadioSvoboda);
+        executorService.shutdown();
+
+
+        List<Article>  articles1 = null;
         try {
-            thread.join();
+            articles1 = (List<Article>) submit1.get();
+            List<Article> articles2 = (List<Article>) submit2.get();
+            articles1.addAll(articles2);
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return parserRSS.getArticles();
+        Collections.sort(articles1);
+        Collections.reverse(articles1);
+        return articles1;
     }
 }

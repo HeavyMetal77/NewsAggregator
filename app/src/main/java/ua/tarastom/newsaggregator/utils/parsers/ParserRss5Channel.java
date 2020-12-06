@@ -10,13 +10,12 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import ua.tarastom.newsaggregator.models.Article;
 
-public class ParserRSS5Channel implements Runnable {
+public class ParserRss5Channel implements Callable {
     private final String CHANNEL = "channel";
-    private String channelTitle = "";
-
     private final String PUB_DATE = "pubDate";
     private final String DESCRIPTION = "description";
     private final String LINK = "link";
@@ -27,13 +26,10 @@ public class ParserRSS5Channel implements Runnable {
     private List<Article> articles;
     private final String URL_RSS;
 
-    public ParserRSS5Channel(String URL_RSS) {
+    public ParserRss5Channel(String URL_RSS) {
         this.URL_RSS = URL_RSS;
     }
 
-    public List<Article> getArticles() {
-        return articles;
-    }
 
     public void parse(String urlRss) {
         articles = new ArrayList<>();
@@ -107,7 +103,8 @@ public class ParserRSS5Channel implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Object call() throws Exception {
         parse(URL_RSS);
+        return articles;
     }
 }

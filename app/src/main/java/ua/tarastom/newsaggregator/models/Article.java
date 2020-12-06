@@ -4,10 +4,12 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import ua.tarastom.newsaggregator.utils.Utils;
 
-public class Article {
+public class Article implements Comparable<Article>{
 
     @SerializedName("language")
     @Expose
@@ -120,5 +122,13 @@ public class Article {
 
     public void setCategory(List<String> category) {
         this.category = category;
+    }
+
+
+    @Override
+    public int compareTo(Article article) {
+        Date date1 = Utils.getDate(this.getPublishedAt());
+        Date date2 = Utils.getDate(article.getPublishedAt());
+        return date1.compareTo(date2);
     }
 }

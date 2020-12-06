@@ -114,7 +114,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         return articles.size();
     }
 
-    class ArticleHolder extends RecyclerView.ViewHolder{
+    class ArticleHolder extends RecyclerView.ViewHolder {
         TextView title, description, author, publishedAt, source, time;
         ImageView img_news;
         ProgressBar progressBar;

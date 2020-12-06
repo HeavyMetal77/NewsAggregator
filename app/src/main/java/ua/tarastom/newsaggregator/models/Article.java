@@ -2,13 +2,11 @@ package ua.tarastom.newsaggregator.models;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
 import java.util.Date;
-import java.util.List;
 
 import ua.tarastom.newsaggregator.utils.Utils;
 
@@ -25,9 +23,9 @@ public class Article implements Comparable<Article> {
             baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("https://www.", "");
         } else if (link.startsWith("http://www.")) {
             baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("http://www.", "");
-        } else if (link.startsWith("https://")){
+        } else if (link.startsWith("https://")) {
             baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("https://", "");
-        }else if (link.startsWith("http://")){
+        } else if (link.startsWith("http://")) {
             baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("http://", "");
         }
         return baseUrl;
@@ -53,19 +51,27 @@ public class Article implements Comparable<Article> {
     @Element(name = "pubDate")
     private String pubDate;
 
-    @ElementList(name = "category", required = false)
-    private List<String> category;
+//    @ElementList(name = "category", required = false)
+//    private List<String> categories;
+//
+//    public List<String> getCategories() {
+//        return categories;
+//    }
+//
+//    public void setCategories(List<String> categories) {
+//        this.categories = categories;
+//    }
 
-    public List<String> getCategory() {
+    @Element(name = "category", required = false)
+    private String category;
+
+    public String getCategory() {
         return category;
     }
 
-    public void setCategory(List<String> category) {
+    public void setCategory(String category) {
         this.category = category;
     }
-
-//    @Element(name = "category")
-//    private String category;
 
     public String getPubDate() {
         return pubDate;
@@ -118,8 +124,6 @@ public class Article implements Comparable<Article> {
         this.guid = guid;
     }
 
-
-
     public String getLanguage() {
         return language;
     }
@@ -142,12 +146,4 @@ public class Article implements Comparable<Article> {
         Date date2 = Utils.getDate(article.getPubDate());
         return date1.compareTo(date2);
     }
-
-//    public String getCategory() {
-//        return category;
-//    }
-//
-//    public void setCategory(String category) {
-//        this.category = category;
-//    }
 }

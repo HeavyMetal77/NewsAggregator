@@ -10,13 +10,13 @@ public interface ApiInterface {
     Call<ArticleResponse> getChannel();
 
 //    @GET("top-headlines")
-//    Call<List<Article>> getNews(
+//    Call<ArticleResponse> getNews(
 //            @Query("country") String country,
 //            @Query("language") String language
 //            );
 //
 //    @GET("everything")
-//    Call<List<Article>> getNewsSearch(
+//    Call<ArticleResponse> getNewsSearch(
 //            @Query("q") String keyWord,
 //            @Query("language") String language,
 //            @Query("sortBy") String sortBy

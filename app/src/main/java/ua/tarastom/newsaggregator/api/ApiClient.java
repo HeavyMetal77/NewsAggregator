@@ -13,8 +13,7 @@ public class ApiClient {
     public static final String BASE_URL = "https://www.5.ua/novyny/";
 //    public static final String BASE_URL = "https://censor.net/includes/";
 //    public static final String BASE_URL = "https://www.radiosvoboda.org/api/";
-
-    //        String url = "https://censor.net/includes/resonance_uk.xml";
+//        String url = "https://censor.net/includes/resonance_uk.xml";
 //        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
 //        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
 //        String url = "https://www.5.ua/novyny/rss";
@@ -66,5 +65,4 @@ public class ApiClient {
             throw new RuntimeException(e);
         }
     }
-
 }

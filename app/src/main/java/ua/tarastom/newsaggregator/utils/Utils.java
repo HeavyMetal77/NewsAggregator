@@ -39,13 +39,13 @@ public class Utils {
 //            PrettyTime p = new PrettyTime(new Locale(getCountry()));
 //            isTime = p.format(output);
 //        } else {
-            PrettyTime p = new PrettyTime(new Locale(getCountry()));
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
-                Date date = sdf.parse(stringDate);
-                isTime = p.format(date);
-            } catch (ParseException e) {
-                e.printStackTrace();
+        PrettyTime p = new PrettyTime(new Locale(getCountry()));
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+            Date date = sdf.parse(stringDate);
+            isTime = p.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
 //            }
         }
         return isTime;

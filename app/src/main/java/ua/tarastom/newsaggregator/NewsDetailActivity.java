@@ -1,5 +1,6 @@
 package ua.tarastom.newsaggregator;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
     private String mUrl, mImg, mTitle, mDate, mSource, mAuthor;
+    private ProgressDialog progDailog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,8 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
     }
 
     private void initWebView(String url) {
+        progDailog = ProgressDialog.show(this, "Loading","Please wait...", true);
+        progDailog.setCancelable(true);
         WebView webView = findViewById(R.id.webView);
         webView.getSettings().setLoadsImagesAutomatically(true);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -94,17 +98,16 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        webView.setWebViewClient(new WebViewClient(){
+        webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-//                progDailog.show();
+                progDailog.show(); //TODO is it need?
                 view.loadUrl(url);
-
                 return true;
             }
             @Override
             public void onPageFinished(WebView view, final String url) {
-//                progDailog.dismiss();
+                progDailog.dismiss(); //TODO is it need?
             }
         });
         webView.loadUrl(url);
@@ -130,8 +133,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
             date_behavior.setVisibility(View.GONE);
             titleAppbar.setVisibility(View.VISIBLE);
             isHideToolbarView = !isHideToolbarView;
-        }
-        else if (percentage < 1f && isHideToolbarView) {
+        } else if (percentage < 1f && isHideToolbarView) {
             date_behavior.setVisibility(View.VISIBLE);
             titleAppbar.setVisibility(View.GONE);
             isHideToolbarView = !isHideToolbarView;
@@ -152,7 +154,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
             intent.setData(Uri.parse(mUrl));
             startActivity(intent);
             return true;
-        } else if(itemId == R.id.share){
+        } else if (itemId == R.id.share) {
             try {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");

@@ -1,62 +1,78 @@
 package ua.tarastom.newsaggregator.models;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Path;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Text;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import ua.tarastom.newsaggregator.utils.Utils;
 
-public class Article implements Comparable<Article>{
+@Root(name = "item", strict = false)
+public class Article implements Comparable<Article> {
 
-    @SerializedName("language")
-    @Expose
     private String language;
 
-    @SerializedName("source")
-    @Expose
-    private String source;
+    private String titleChannel;
 
-    @SerializedName("category")
-    @Expose
-    private List<String> category;
+    public String getSource() {
+        String baseUrl = "";
+        if (link.startsWith("https://www.")) {
+            baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("https://www.", "");
+        } else if (link.startsWith("http://www.")) {
+            baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("http://www.", "");
+        } else if (link.startsWith("https://")){
+            baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("https://", "");
+        }else if (link.startsWith("http://")){
+            baseUrl = link.substring(0, link.indexOf('/', link.indexOf("//") + 2)).replace("http://", "");
+        }
+        return baseUrl;
+    }
 
-    @SerializedName("author")
-    @Expose
-    private String author;
-
-    @SerializedName("title")
-    @Expose
+    @Path("title")
+    @Text(required = false)
     private String title;
 
-    @SerializedName("description")
-    @Expose
+    @Element(name = "link")
+    private String link;
+
+    @Element(name = "description")
     private String description;
 
-    @SerializedName("url")
-    @Expose
-    private String url;
+    @Path("enclosure")
+    @Attribute(name = "url", required = false)
+    private String enclosure;
 
-    @SerializedName("urlToImage")
-    @Expose
-    private String urlToImage;
+    @Element(name = "guid")
+    private String guid;
 
-    @SerializedName("publishedAt")
-    @Expose
-    private String publishedAt;
+    @Element(name = "pubDate")
+    private String pubDate;
 
-    public Article() {
-        category = new ArrayList<>();
+    @ElementList(name = "category", required = false)
+    private List<String> category;
+
+    public List<String> getCategory() {
+        return category;
     }
 
-    public String getAuthor() {
-        return author;
+    public void setCategory(List<String> category) {
+        this.category = category;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+//    @Element(name = "category")
+//    private String category;
+
+    public String getPubDate() {
+        return pubDate;
+    }
+
+    public void setPubDate(String pubDate) {
+        this.pubDate = pubDate;
     }
 
     public String getTitle() {
@@ -67,6 +83,17 @@ public class Article implements Comparable<Article>{
         this.title = title;
     }
 
+    public String getLink() {
+        if (!link.startsWith("https://www.") && link.startsWith("https://")) {
+            link = link.replace("https://", "https://www.");
+        }
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -75,29 +102,22 @@ public class Article implements Comparable<Article>{
         this.description = description;
     }
 
-    public String getUrl() {
-        return url;
+    public String getEnclosure() {
+        return enclosure;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setEnclosure(String enclosure) {
+        this.enclosure = enclosure;
     }
 
-    public String getUrlToImage() {
-        return urlToImage;
+    public String getGuid() {
+        return guid;
     }
 
-    public void setUrlToImage(String urlToImage) {
-        this.urlToImage = urlToImage;
+    public void setGuid(String guid) {
+        this.guid = guid;
     }
 
-    public String getPublishedAt() {
-        return publishedAt;
-    }
-
-    public void setPublishedAt(String publishedAt) {
-        this.publishedAt = publishedAt;
-    }
 
 
     public String getLanguage() {
@@ -108,27 +128,26 @@ public class Article implements Comparable<Article>{
         this.language = language;
     }
 
-    public String getSource() {
-        return source;
+    public void setTitleChannel(String titleChannel) {
+        this.titleChannel = titleChannel;
     }
 
-    public void setSource(String source) {
-        this.source = source;
+    public String getTitleChannel() {
+        return titleChannel;
     }
-
-    public List<String> getCategory() {
-        return category;
-    }
-
-    public void setCategory(List<String> category) {
-        this.category = category;
-    }
-
 
     @Override
     public int compareTo(Article article) {
-        Date date1 = Utils.getDate(this.getPublishedAt());
-        Date date2 = Utils.getDate(article.getPublishedAt());
+        Date date1 = Utils.getDate(this.getPubDate());
+        Date date2 = Utils.getDate(article.getPubDate());
         return date1.compareTo(date2);
     }
+
+//    public String getCategory() {
+//        return category;
+//    }
+//
+//    public void setCategory(String category) {
+//        this.category = category;
+//    }
 }

@@ -7,17 +7,25 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.SimpleXmlConverterFactory;
 
 public class ApiClient {
-    public static final String BASE_URL = "https://newsapi.org/v2/";
+    public static final String BASE_URL = "https://www.5.ua/novyny/";
+//    public static final String BASE_URL = "https://censor.net/includes/";
+//    public static final String BASE_URL = "https://www.radiosvoboda.org/api/";
+
+    //        String url = "https://censor.net/includes/resonance_uk.xml";
+//        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
+//        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
+//        String url = "https://www.5.ua/novyny/rss";
+
     public static Retrofit retrofit;
 
     public static Retrofit getApiClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder().baseUrl(BASE_URL)
                     .client(getUnsafeOkHttpClient().build())
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(SimpleXmlConverterFactory.create())
                     .build();
         }
         return retrofit;

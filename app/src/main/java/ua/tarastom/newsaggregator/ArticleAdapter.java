@@ -79,7 +79,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         requestOptions.timeout(3000);
 
         Glide.with(context)
-                .load(article.getUrlToImage())
+                .load(article.getEnclosure())
                 .apply(requestOptions)
                 .listener(new RequestListener<Drawable>() {
                     @Override
@@ -98,13 +98,13 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
                 .into(holder.img_news);
 
         holder.title.setText(article.getTitle());
-        if (article.getAuthor() != null) {
-            holder.author.setText(article.getAuthor());
+        if (article.getTitleChannel() != null) {
+            holder.author.setText(article.getTitleChannel());
         }
         holder.description.setText(article.getDescription());
         holder.source.setText(article.getSource());
-        holder.publishedAt.setText(Utils.DateToTimeFormat(article.getPublishedAt()));
-        holder.time.setText(Utils.DateToTimeFormat(article.getPublishedAt()));
+        holder.publishedAt.setText(Utils.DateToTimeFormat(article.getPubDate()));
+        holder.time.setText("\u2022 " + Utils.DateToTimeFormat(article.getPubDate()));
         Log.d("ArticleAdapter", "onBindViewHolder() - " + article.getDescription());
     }
 

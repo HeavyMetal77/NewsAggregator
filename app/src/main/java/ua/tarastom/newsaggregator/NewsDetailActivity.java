@@ -94,7 +94,19 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient(){
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+//                progDailog.show();
+                view.loadUrl(url);
+
+                return true;
+            }
+            @Override
+            public void onPageFinished(WebView view, final String url) {
+//                progDailog.dismiss();
+            }
+        });
         webView.loadUrl(url);
     }
 

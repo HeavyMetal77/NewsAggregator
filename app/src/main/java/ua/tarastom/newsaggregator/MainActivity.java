@@ -23,19 +23,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import ua.tarastom.newsaggregator.api.ApiClient;
+import ua.tarastom.newsaggregator.api.ApiInterface;
 import ua.tarastom.newsaggregator.models.Article;
-import ua.tarastom.newsaggregator.utils.parsers.ParserRss5Channel;
-import ua.tarastom.newsaggregator.utils.parsers.ParserRssRadioSvoboda;
+import ua.tarastom.newsaggregator.models.ArticleResponse;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
-    public static final String API_KEY = "ecfec3848d274309b22c5b9dac6a46df";
     private RecyclerView recyclerView;
     private List<Article> articles = new ArrayList<>();
     private ArticleAdapter adapter;
@@ -123,25 +121,59 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 //        });
 //    }
 
-    public void loadJsonRSS(final String keyWord) {
+    public void loadRssByRetrofit(final String keyWord) {
         errorLayout.setVisibility(View.GONE);
         topHeadLines.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
-
-        articles = loadRSS();
-        if (!articles.isEmpty()) {
-            adapter = new ArticleAdapter(MainActivity.this);
-            adapter.setArticles(articles);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
-            initListener();
-            recyclerView.setAdapter(adapter);
-            topHeadLines.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
+        ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+        Call<ArticleResponse> call;
+        if (keyWord.length() > 0) {
+            call = apiInterface.getChannel();
         } else {
-            topHeadLines.setVisibility(View.INVISIBLE);
-            swipeRefreshLayout.setRefreshing(false);
-            showErrorMessage(R.drawable.no_result, "No result, unknown error", "Please try again\n");
+            call = apiInterface.getChannel();
         }
+        call.enqueue(new Callback<ArticleResponse>() {
+            @Override
+            public void onResponse(Call<ArticleResponse> call, Response<ArticleResponse> response) {
+                if (response.isSuccessful()) {
+                    if (!articles.isEmpty()) {
+                        articles.clear();
+                    }
+
+                    articles = response.body().getChannel().getArticles();
+                    adapter = new ArticleAdapter(MainActivity.this);
+                    adapter.setArticles(articles);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false));
+                    initListener();
+                    recyclerView.setAdapter(adapter);
+                    topHeadLines.setVisibility(View.VISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                } else {
+                    topHeadLines.setVisibility(View.INVISIBLE);
+                    swipeRefreshLayout.setRefreshing(false);
+                    String errorCode;
+                    switch (response.code()) {
+                        case 404:
+                            errorCode = "404 not found";
+                            break;
+                        case 500:
+                            errorCode = "500 server broken";
+                            break;
+                        default:
+                            errorCode = "unknown error";
+                            break;
+                    }
+                    showErrorMessage(R.drawable.no_result, "No result", "Please try again\n" + errorCode);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArticleResponse> call, Throwable t) {
+                topHeadLines.setVisibility(View.INVISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                showErrorMessage(R.drawable.no_result, "Oops...", "Network failure, please try again\n" + t.toString());
+            }
+        });
     }
 
     private void initListener() {
@@ -149,12 +181,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             ImageView imageView = view.findViewById(R.id.img_news);
             Intent intent = new Intent(MainActivity.this, NewsDetailActivity.class);
             Article article = articles.get(position);
-            intent.putExtra("url", article.getUrl());
+            intent.putExtra("url", article.getLink());
             intent.putExtra("title", article.getTitle());
-            intent.putExtra("img", article.getUrlToImage());
+            intent.putExtra("img", article.getEnclosure());
             intent.putExtra("source", article.getSource());
-            intent.putExtra("date", article.getPublishedAt());
-            intent.putExtra("author", article.getAuthor());
+            intent.putExtra("date", article.getPubDate());
+            intent.putExtra("author", article.getTitleChannel());
 
             Pair<View, String> pair = Pair.create(imageView, ViewCompat.getTransitionName(imageView));
             ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, pair);
@@ -192,11 +224,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        loadJsonRSS("");
+        loadRssByRetrofit("");
     }
 
     private void onLoadingSwipeRefresh(final String keyword) {
-        swipeRefreshLayout.post(() -> loadJsonRSS(keyword));
+        swipeRefreshLayout.post(() -> loadRssByRetrofit(keyword));
     }
 
     private void showErrorMessage(int imageView, String title, String message) {
@@ -207,37 +239,5 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         errorTitle.setText(title);
         errorMessage.setText(message);
         buttonRetry.setOnClickListener(view -> onLoadingSwipeRefresh(""));
-    }
-
-    private List<Article> loadRSS() {
-//        String url = "https://censor.net/includes/resonance_uk.xml";
-//        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
-//        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
-
-        ExecutorService executorService = Executors.newFixedThreadPool(8);
-
-        String url1 = "https://www.5.ua/novyny/rss";
-        String url2 = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
-        ParserRss5Channel parserRss5Channel = new ParserRss5Channel(url1);
-        ParserRssRadioSvoboda parserRssRadioSvoboda = new ParserRssRadioSvoboda(url2);
-        Future submit1 = executorService.submit(parserRss5Channel);
-        Future submit2 = executorService.submit(parserRssRadioSvoboda);
-        executorService.shutdown();
-
-
-        List<Article>  articles1 = null;
-        try {
-            articles1 = (List<Article>) submit1.get();
-            List<Article> articles2 = (List<Article>) submit2.get();
-            articles1.addAll(articles2);
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Collections.sort(articles1);
-        Collections.reverse(articles1);
-        return articles1;
     }
 }

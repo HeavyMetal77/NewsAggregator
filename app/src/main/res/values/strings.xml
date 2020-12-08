@@ -22,6 +22,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="label_menu_1">list</string>
     <string name="label_menu_2">filter</string>
-    <string name="label_menu_3">sort</string>
+    <string name="label_menu_3">save</string>
     <string name="label_menu_4">settings</string>
 </resources>

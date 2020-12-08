@@ -6,6 +6,7 @@ import ua.tarastom.newsaggregator.models.ArticleResponse;
 
 public interface ApiInterface {
 
+    //5Channel
     @GET("rss")
     Call<ArticleResponse> getChannel();
 

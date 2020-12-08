@@ -56,6 +56,11 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         notifyDataSetChanged();
     }
 
+    public void addMoreArticles(List<Article> articles) {
+        this.articles.addAll(articles);
+        notifyDataSetChanged();
+    }
+
     interface OnItemClickListener {
         void onItemClick(View view, int position);
     }

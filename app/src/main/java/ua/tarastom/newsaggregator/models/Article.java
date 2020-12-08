@@ -7,11 +7,22 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Text;
 
 import java.util.Date;
+import java.util.UUID;
 
 import ua.tarastom.newsaggregator.utils.Utils;
 
 @Root(name = "item", strict = false)
 public class Article implements Comparable<Article> {
+
+    private final UUID articleId;
+
+    public Article() {
+        this(UUID.randomUUID());
+    }
+
+    public Article(UUID id) {
+        articleId = id;
+    }
 
     private String language;
 
@@ -45,7 +56,7 @@ public class Article implements Comparable<Article> {
     @Attribute(name = "url", required = false)
     private String enclosure;
 
-    @Element(name = "guid")
+    @Element(name = "guid", required = false)
     private String guid;
 
     @Element(name = "pubDate")
@@ -145,5 +156,9 @@ public class Article implements Comparable<Article> {
         Date date1 = Utils.getDate(this.getPubDate());
         Date date2 = Utils.getDate(article.getPubDate());
         return date1.compareTo(date2);
+    }
+
+    public UUID getArticleId() {
+        return articleId;
     }
 }

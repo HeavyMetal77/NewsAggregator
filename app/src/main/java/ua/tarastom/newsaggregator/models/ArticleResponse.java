@@ -49,6 +49,14 @@ public class ArticleResponse {
         public String getPubDateChannel() {
             return pubDateChannel;
         }
+
+        public void setPubDateChannel(String pubDateChannel) {
+            this.pubDateChannel = pubDateChannel;
+        }
+
+        public void setTitleChannel(String titleChannel) {
+            this.titleChannel = titleChannel;
+        }
     }
 
 }

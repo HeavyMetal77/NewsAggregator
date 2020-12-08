@@ -1,23 +1,24 @@
 package ua.tarastom.newsaggregator;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -31,7 +32,7 @@ import ua.tarastom.newsaggregator.models.Article;
 import ua.tarastom.newsaggregator.models.ArticleLab;
 import ua.tarastom.newsaggregator.utils.Utils;
 
-public class NewsDetailActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
+public class NewsDetailFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
     private ImageView imageView;
     private TextView appBarTitle, appbar_subtitle, date, time, title;
     private boolean isHideToolbarView = false;
@@ -40,37 +41,50 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
     private AppBarLayout appBarLayout;
     private Toolbar toolbar;
     private Article article;
-    private static final String EXTRA_ARTICLE_ID = "articleId";
 
-    public static Intent newIntent(Context packageContext, UUID articleId) {
-        Intent intent = new Intent(packageContext, NewsDetailActivity.class);
-        intent.putExtra(EXTRA_ARTICLE_ID, articleId);
-        return intent;
+    private static final String ARG_ARTICLE_ID = "articleId";
+
+    public NewsDetailFragment() {
+        // Required empty public constructor
+    }
+
+    public static NewsDetailFragment newInstance(UUID articleId) {
+        NewsDetailFragment fragment = new NewsDetailFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_ARTICLE_ID, articleId);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_news_detail);
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle("");
-        appBarLayout = findViewById(R.id.appbar);
-        appBarLayout.addOnOffsetChangedListener(this);
-        date_behavior = findViewById(R.id.date_behavior);
-        titleAppbar = findViewById(R.id.title_appbar);
-        imageView = findViewById(R.id.backdrop);
-        appBarTitle = findViewById(R.id.title_on_appbar);
-        appbar_subtitle = findViewById(R.id.subtitle_on_appbar);
-        date = findViewById(R.id.date);
-        time = findViewById(R.id.time);
-        title = findViewById(R.id.title);
+        if (getArguments() != null) {
+            UUID articleId = (UUID) getArguments().getSerializable(ARG_ARTICLE_ID);
+            article = ArticleLab.get(getActivity()).getArticle(articleId);
+        }
+    }
 
-        UUID articleId = (UUID) getIntent().getSerializableExtra("articleId");
-        article = ArticleLab.getArticle(articleId);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_news_detail, container, false);
+        toolbar = view.findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setTitle("");
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        final CollapsingToolbarLayout collapsingToolbarLayout = view.findViewById(R.id.collapsing_toolbar);
+        collapsingToolbarLayout.setTitle("");
+        appBarLayout = view.findViewById(R.id.appbar);
+        appBarLayout.addOnOffsetChangedListener(this);
+        date_behavior = view.findViewById(R.id.date_behavior);
+        titleAppbar = view.findViewById(R.id.title_appbar);
+        imageView = view.findViewById(R.id.backdrop);
+        appBarTitle = view.findViewById(R.id.title_on_appbar);
+        appbar_subtitle = view.findViewById(R.id.subtitle_on_appbar);
+        date = view.findViewById(R.id.date);
+        time = view.findViewById(R.id.time);
+        title = view.findViewById(R.id.title);
 
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.error(Utils.getRandomDrawbleColor());
@@ -87,11 +101,12 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
         title.setText(article.getTitle());
         String timeText = article.getSource() + " " + " \u2022 " + article.getTitleChannel() + " \u2022 " + Utils.DateToTimeFormat(article.getPubDate());
         time.setText(timeText);
-        initWebView(article.getLink());
+        initWebView(view, article.getLink());
+        return view;
     }
 
-    private void initWebView(String url) {
-        WebView webView = findViewById(R.id.webView);
+    private void initWebView(View view, String url) {
+        WebView webView = view.findViewById(R.id.webView);
         webView.getSettings().setLoadsImagesAutomatically(true);
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setBuiltInZoomControls(true);
@@ -118,17 +133,6 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
 //        startActivity(intent);
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        supportFinishAfterTransition();
-    }
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -146,9 +150,8 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_news, menu);
-        return true;
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_news, menu);
     }
 
     @Override
@@ -168,7 +171,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
                 intent.putExtra(Intent.EXTRA_TEXT, body);
                 startActivity(Intent.createChooser(intent, "Share with: "));
             } catch (Exception e) {
-                Toast.makeText(this, "Sorry, \ncannot be share...", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "Sorry, \ncannot be share...", Toast.LENGTH_SHORT).show();
             }
         }
         return super.onOptionsItemSelected(item);

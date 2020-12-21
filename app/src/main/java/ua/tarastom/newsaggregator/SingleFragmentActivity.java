@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 public abstract class SingleFragmentActivity extends AppCompatActivity {
     protected abstract Fragment createFragment();
 
@@ -30,5 +32,25 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, fragment)
                     .commit();
         }
+        BottomNavigationView bottomNavigationMenu = findViewById(R.id.bottom_navigation);
+        bottomNavigationMenu.setOnNavigationItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            switch (item.getItemId()) {
+                case R.id.menu_page_1:
+                    selectedFragment = NewsListFragment.newInstance("", "");
+                    break;
+                case R.id.menu_page_2:
+                    selectedFragment = FilterFragment.newInstance("", "");
+                    break;
+                case R.id.menu_page_3:
+                    selectedFragment = SavedPagesFragment.newInstance("", "");
+                    break;
+                case R.id.menu_page_4:
+                    selectedFragment = PresetsFragment.newInstance("", "");
+                    break;
+            }
+            fm.beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            return true;
+        });
     }
 }

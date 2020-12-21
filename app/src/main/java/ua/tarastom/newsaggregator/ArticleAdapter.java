@@ -35,13 +35,20 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
     private List<Article> articles;
     private OnItemClickListener onItemClickListener;
     private Context context;
+    private OnReachEndListener onReachEndListener;
 
     public ArticleAdapter(Context context) {
         this.articles = new ArrayList<>();
         this.context = context;
-        Log.d("ArticleAdapter", "constructor");
     }
 
+    public interface OnReachEndListener {
+        void onReachEnd();
+    }
+
+    public void setOnReachEndListener(OnReachEndListener onReachEndListener) {
+        this.onReachEndListener = onReachEndListener;
+    }
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
     }
@@ -51,12 +58,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
     }
 
     public void setArticles(List<Article> articles) {
-        this.articles = articles;
-        Log.d("ArticleAdapter", "getArticles() - " + articles);
-        notifyDataSetChanged();
-    }
-
-    public void addMoreArticles(List<Article> articles) {
         this.articles.addAll(articles);
         notifyDataSetChanged();
     }
@@ -68,14 +69,18 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
     @NonNull
     @Override
     public ArticleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item, parent, false);
-        Log.d("ArticleAdapter", "onCreateViewHolder()");
+        View view = LayoutInflater.from(context).inflate(R.layout.item_news_list, parent, false);
         return new ArticleHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ArticleHolder holder, int position) {
         Article article = articles.get(position);
+
+        if (articles.size() >= 20 && position > articles.size() - 5 && onReachEndListener != null) {
+            onReachEndListener.onReachEnd();
+        }
+
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(Utils.getRandomDrawbleColor());
         requestOptions.error(Utils.getRandomDrawbleColor());
@@ -84,12 +89,12 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         requestOptions.timeout(3000);
 
         Glide.with(context)
-                .load(article.getEnclosure())
+                .load(article.getEnclosure().get(0))
                 .apply(requestOptions)
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        holder.progressBar.setVisibility(View.VISIBLE);
+                        holder.progressBar.setVisibility(View.GONE);//TODO hide progressBar if load img failed
                         return false;
                     }
 
@@ -109,8 +114,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
         holder.description.setText(article.getDescription());
         holder.source.setText(article.getSource());
         holder.publishedAt.setText(Utils.DateToTimeFormat(article.getPubDate()));
-        holder.time.setText("\u2022 " + Utils.DateToTimeFormat(article.getPubDate()));
-        Log.d("ArticleAdapter", "onBindViewHolder() - " + article.getDescription());
+        String textTime = "\u2022 " + Utils.DateToTimeFormat(article.getPubDate());
+        holder.time.setText(textTime);
     }
 
     @Override
@@ -134,7 +139,6 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleAdapter.ArticleH
             time = itemView.findViewById(R.id.time);
             img_news = itemView.findViewById(R.id.img_news);
             progressBar = itemView.findViewById(R.id.progressBar_load_photo);
-            Log.d("ArticleAdapter", "ArticleHolder constructor");
 
             itemView.setOnClickListener(view -> {
                 if (onItemClickListener != null) {

@@ -26,8 +26,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
-import java.util.UUID;
-
 import ua.tarastom.newsaggregator.models.Article;
 import ua.tarastom.newsaggregator.models.ArticleLab;
 import ua.tarastom.newsaggregator.utils.Utils;
@@ -48,7 +46,7 @@ public class NewsDetailFragment extends Fragment implements AppBarLayout.OnOffse
         // Required empty public constructor
     }
 
-    public static NewsDetailFragment newInstance(UUID articleId) {
+    public static NewsDetailFragment newInstance(int articleId) {
         NewsDetailFragment fragment = new NewsDetailFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ARTICLE_ID, articleId);
@@ -60,7 +58,7 @@ public class NewsDetailFragment extends Fragment implements AppBarLayout.OnOffse
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            UUID articleId = (UUID) getArguments().getSerializable(ARG_ARTICLE_ID);
+            int articleId = (int) getArguments().getSerializable(ARG_ARTICLE_ID);
             article = ArticleLab.get(getActivity()).getArticle(articleId);
         }
     }

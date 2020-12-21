@@ -15,9 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,7 +31,7 @@ import ua.tarastom.newsaggregator.api.ApiClient;
 import ua.tarastom.newsaggregator.api.ApiInterface;
 import ua.tarastom.newsaggregator.models.Article;
 import ua.tarastom.newsaggregator.models.ArticleLab;
-import ua.tarastom.newsaggregator.models.ArticleResponse;
+import ua.tarastom.newsaggregator.models.News;
 
 public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
     private RecyclerView recyclerView;
@@ -46,6 +43,14 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
     private ImageView errorImage;
     private TextView errorTitle, errorMessage;
     private Button buttonRetry;
+    private String keyWord = "";
+    private String country = "ua";
+    private String category = "";
+    private String language = "";
+    private String titleChannel = "";
+    private int page = 0;
+    private int size = 20;
+    private boolean isLoading = false;
 
     // TODO: Rename parameter arguments, choose names that match
     private static final String ARG_PARAM1 = "param1";
@@ -57,6 +62,8 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     //Callbacks start
     private Callbacks callbacks;
+
+
 
     interface Callbacks{
         void onArticleSelected(Article article);
@@ -115,12 +122,18 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setNestedScrollingEnabled(false);
-        onLoadingSwipeRefresh("");
+        onLoadingSwipeRefresh(keyWord);
         errorLayout = view.findViewById(R.id.error_layout);
         errorImage = view.findViewById(R.id.imageViewError);
         errorTitle = view.findViewById(R.id.error_title);
         errorMessage = view.findViewById(R.id.error_message);
         buttonRetry = view.findViewById(R.id.buttonRetry);
+
+        adapter = new ArticleAdapter(getContext());
+        adapterInitListener();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+
+
         return view;
     }
 
@@ -129,28 +142,26 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
         topHeadLines.setVisibility(View.INVISIBLE);
         swipeRefreshLayout.setRefreshing(true);
         ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
-        Call<ArticleResponse> call;
-        if (keyWord.length() > 0) {
-            call = apiInterface.getChannel();
-        } else {
-            call = apiInterface.getChannel();
-        }
-        call.enqueue(new Callback<ArticleResponse>() {
+        Call<News> call = apiInterface.getFeed(keyWord, country, category, language, titleChannel, page, size);
+        call.enqueue(new Callback<News>() {
             @Override
-            public void onResponse(Call<ArticleResponse> call, Response<ArticleResponse> response) {
+            public void onResponse(Call<News> call, Response<News> response) {
                 if (response.isSuccessful()) {
                     if (!articles.isEmpty()) {
                         articles.clear();
                     }
-                    articles = response.body().getChannel().getArticles();
+                    if (response.body() != null) {
+                        articles = response.body().getEmbedded().getArticles();
+                    } else {
+                        articles = new ArrayList<>();
+                    }
                     ArticleLab.setArticleList(articles);
-                    adapter = new ArticleAdapter(getContext());
                     adapter.setArticles(articles);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-                    initListener();
                     recyclerView.setAdapter(adapter);
                     topHeadLines.setVisibility(View.VISIBLE);
                     swipeRefreshLayout.setRefreshing(false);
+                    page ++;
+                    isLoading = true;
                 } else {
                     topHeadLines.setVisibility(View.INVISIBLE);
                     swipeRefreshLayout.setRefreshing(false);
@@ -171,7 +182,7 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
             }
 
             @Override
-            public void onFailure(Call<ArticleResponse> call, Throwable t) {
+            public void onFailure(Call<News> call, Throwable t) {
                 topHeadLines.setVisibility(View.INVISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
                 showErrorMessage("Oops...", "Network failure, please try again\n" + t.toString());
@@ -179,14 +190,15 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
         });
     }
 
-    private void initListener() {
+    private void adapterInitListener() {
         adapter.setOnItemClickListener((view, position) -> {
             Article article = articles.get(position);
-            ImageView imageView = view.findViewById(R.id.img_news);
-            Pair<View, String> pair = Pair.create(imageView, ViewCompat.getTransitionName(imageView));
-            ActivityOptionsCompat activityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), pair);
-//            startActivity(intent, activityOptionsCompat.toBundle());
             callbacks.onArticleSelected(article);
+        });
+        adapter.setOnReachEndListener(() -> {
+            if (!isLoading) {
+                loadRssByRetrofit(keyWord);
+            }
         });
     }
 
@@ -218,7 +230,7 @@ public class NewsListFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     @Override
     public void onRefresh() {
-        loadRssByRetrofit("");
+        loadRssByRetrofit(keyWord);
     }
 
     private void onLoadingSwipeRefresh(final String keyword) {

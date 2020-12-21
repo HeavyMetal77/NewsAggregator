@@ -25,8 +25,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
-import java.util.UUID;
-
 import ua.tarastom.newsaggregator.models.Article;
 import ua.tarastom.newsaggregator.models.ArticleLab;
 import ua.tarastom.newsaggregator.utils.Utils;
@@ -42,7 +40,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
     private Article article;
     private static final String EXTRA_ARTICLE_ID = "articleId";
 
-    public static Intent newIntent(Context packageContext, UUID articleId) {
+    public static Intent newIntent(Context packageContext, int articleId) {
         Intent intent = new Intent(packageContext, NewsDetailActivity.class);
         intent.putExtra(EXTRA_ARTICLE_ID, articleId);
         return intent;
@@ -69,7 +67,7 @@ public class NewsDetailActivity extends AppCompatActivity implements AppBarLayou
         time = findViewById(R.id.time);
         title = findViewById(R.id.title);
 
-        UUID articleId = (UUID) getIntent().getSerializableExtra("articleId");
+        int articleId = (int) getIntent().getSerializableExtra("articleId");
         article = ArticleLab.getArticle(articleId);
 
         RequestOptions requestOptions = new RequestOptions();

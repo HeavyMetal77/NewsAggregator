@@ -1,32 +1,90 @@
 package ua.tarastom.newsaggregator.models;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Path;
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Text;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
+import java.util.List;
 
 import ua.tarastom.newsaggregator.utils.Utils;
 
-@Root(name = "item", strict = false)
-public class Article implements Comparable<Article> {
+public class Article implements Comparable<Article>, Serializable {
+    @SerializedName("id")
+    @Expose
+    private int id;
 
-    private final UUID articleId;
+    @SerializedName("country")
+    @Expose
+    private String country;
 
-    public Article() {
-        this(UUID.randomUUID());
-    }
+    @SerializedName("titleChannel")
+    @Expose
+    private String titleChannel;
 
-    public Article(UUID id) {
-        articleId = id;
-    }
+    @SerializedName("source")
+    @Expose
+    private String source;
 
+    //    @JsonDeserialize(using = DateHandler.class)
+    @SerializedName("pubDateChannel")
+    @Expose
+    private String pubDateChannel;
+
+    @SerializedName("logo")
+    @Expose
+    private String logo;
+
+    @SerializedName("language")
+    @Expose
     private String language;
 
-    private String titleChannel;
+    @SerializedName("title")
+    @Expose
+    private String title;
+
+    @SerializedName("link")
+    @Expose
+    private String link;
+
+    @SerializedName("guid")
+    @Expose
+    private String guid;
+
+    //    @JsonDeserialize(using = DateHandler.class)
+    @SerializedName("pubDate")
+    @Expose
+    private String pubDate;
+
+    @SerializedName("region")
+    @Expose
+    private String region;
+
+    @SerializedName("description")
+    @Expose
+    private String description;
+
+    @SerializedName("full_text")
+    @Expose
+    private String full_text;
+
+    @SerializedName("enclosure")
+    @Expose
+//    @ElementList(name = "enclosure", required = false)
+    private List<String> enclosure;
+
+    @SerializedName("category")
+    @Expose
+//    @ElementList(name = "category", required = false)
+    private List<String> category;
+
+    public Article() {
+
+    }
 
     public String getSource() {
         String baseUrl = "";
@@ -42,63 +100,8 @@ public class Article implements Comparable<Article> {
         return baseUrl;
     }
 
-    @Path("title")
-    @Text(required = false)
-    private String title;
-
-    @Element(name = "link")
-    private String link;
-
-    @Element(name = "description")
-    private String description;
-
-    @Path("enclosure")
-    @Attribute(name = "url", required = false)
-    private String enclosure;
-
-    @Element(name = "guid", required = false)
-    private String guid;
-
-    @Element(name = "pubDate")
-    private String pubDate;
-
-//    @ElementList(name = "category", required = false)
-//    private List<String> categories;
-//
-//    public List<String> getCategories() {
-//        return categories;
-//    }
-//
-//    public void setCategories(List<String> categories) {
-//        this.categories = categories;
-//    }
-
-    @Element(name = "category", required = false)
-    private String category;
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public String getPubDate() {
-        return pubDate;
-    }
-
-    public void setPubDate(String pubDate) {
-        this.pubDate = pubDate;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+//    @Path("title")
+//    @Text(required = false)
 
     public String getLink() {
         if (!link.startsWith("https://www.") && link.startsWith("https://")) {
@@ -107,32 +110,56 @@ public class Article implements Comparable<Article> {
         return link;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public int compareTo(Article article) {
+        Date date1 = Utils.getDate(this.getPubDate());
+        Date date2 = Utils.getDate(article.getPubDate());
+        return date1.compareTo(date2);
     }
 
-    public String getDescription() {
-        return description;
+    public int getId() {
+        return id;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public String getEnclosure() {
-        return enclosure;
+    public String getCountry() {
+        return country;
     }
 
-    public void setEnclosure(String enclosure) {
-        this.enclosure = enclosure;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
-    public String getGuid() {
-        return guid;
+    public String getTitleChannel() {
+        return titleChannel;
     }
 
-    public void setGuid(String guid) {
-        this.guid = guid;
+    public void setTitleChannel(String titleChannel) {
+        this.titleChannel = titleChannel;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getPubDateChannel() {
+        return pubDateChannel;
+    }
+
+    public void setPubDateChannel(String pubDateChannel) {
+        this.pubDateChannel = pubDateChannel;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
     }
 
     public String getLanguage() {
@@ -143,22 +170,71 @@ public class Article implements Comparable<Article> {
         this.language = language;
     }
 
-    public void setTitleChannel(String titleChannel) {
-        this.titleChannel = titleChannel;
+    public String getTitle() {
+        return title;
     }
 
-    public String getTitleChannel() {
-        return titleChannel;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    @Override
-    public int compareTo(Article article) {
-        Date date1 = Utils.getDate(this.getPubDate());
-        Date date2 = Utils.getDate(article.getPubDate());
-        return date1.compareTo(date2);
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public UUID getArticleId() {
-        return articleId;
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
+
+    public String getPubDate() {
+        return pubDate;
+    }
+
+    public void setPubDate(String pubDate) {
+        this.pubDate = pubDate;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getFull_text() {
+        return full_text;
+    }
+
+    public void setFull_text(String full_text) {
+        this.full_text = full_text;
+    }
+
+    public List<String> getEnclosure() {
+        return enclosure;
+    }
+
+    public void setEnclosure(List<String> enclosure) {
+        this.enclosure = enclosure;
+    }
+
+    public List<String> getCategory() {
+        return category;
+    }
+
+    public void setCategory(List<String> category) {
+        this.category = category;
     }
 }

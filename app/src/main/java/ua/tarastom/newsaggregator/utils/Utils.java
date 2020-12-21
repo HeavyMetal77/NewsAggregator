@@ -2,11 +2,16 @@ package ua.tarastom.newsaggregator.utils;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
 
 import org.ocpsoft.prettytime.PrettyTime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
@@ -41,31 +46,40 @@ public class Utils {
 //        } else {
         PrettyTime p = new PrettyTime(new Locale(getCountry()));
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
             Date date = sdf.parse(stringDate);
             isTime = p.format(date);
         } catch (ParseException e) {
             e.printStackTrace();
-//            }
         }
         return isTime;
     }
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static String DateFormat(String stringDate) {
         String newDate = "";
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy", new Locale(getCountry()));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", new Locale(getCountry()));
         newDate = dateFormat.format(getDate(stringDate));
         return newDate;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public static Date getDate(String stringDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
-        Date date = null;
-        try {
-            date = sdf.parse(stringDate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        LocalDateTime ldt = LocalDateTime.parse(stringDate);
+//        Date in = new Date();
+//        LocalDateTime ldt = LocalDateTime.ofInstant(in.toInstant(), ZoneId.systemDefault());
+        Date date = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+
+
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
+//        Date date = null;
+//        try {
+//            date = sdf.parse(stringDate);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
         return date;
     }
 

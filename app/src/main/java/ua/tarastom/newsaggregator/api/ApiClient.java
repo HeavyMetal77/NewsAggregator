@@ -1,5 +1,7 @@
 package ua.tarastom.newsaggregator.api;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -7,16 +9,10 @@ import javax.net.ssl.X509TrustManager;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
-import retrofit2.SimpleXmlConverterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    public static final String BASE_URL = "https://www.5.ua/novyny/";
-//        String url = "https://focus.ua/modules/rss.php";
-//        String url = "https://censor.net/includes/resonance_uk.xml";
-//        String url = "https://www.ostro.org/rss/";
-//        String url = "https://www.radiosvoboda.org/api/zii$p_ejg$py";
-//        String url = "http://k.img.com.ua/rss/ua/all_news2.0.xml";
-//        String url = "https://www.5.ua/novyny/rss";
+    public static final String BASE_URL = "https://news-aggregator-ukr.herokuapp.com/articles/";
 
     public static Retrofit retrofit;
 
@@ -24,7 +20,7 @@ public class ApiClient {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder().baseUrl(BASE_URL)
                     .client(getUnsafeOkHttpClient().build())
-                    .addConverterFactory(SimpleXmlConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }
         return retrofit;
@@ -58,6 +54,9 @@ public class ApiClient {
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.connectTimeout(5, TimeUnit.MINUTES) // connect timeout
+                    .writeTimeout(5, TimeUnit.MINUTES) // write timeout
+                    .readTimeout(5, TimeUnit.MINUTES); // read timeout
             builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
             builder.hostnameVerifier((hostname, session) -> true);
             return builder;

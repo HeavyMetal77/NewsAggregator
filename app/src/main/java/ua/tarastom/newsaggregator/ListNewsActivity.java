@@ -16,10 +16,10 @@ public class ListNewsActivity extends SingleFragmentActivity implements NewsList
     @Override
     public void onArticleSelected(Article article) {
         if (findViewById(R.id.detail_fragment_container) == null) {
-            Intent intent = NewsDetailActivity.newIntent(this, article.getArticleId());
+            Intent intent = NewsDetailActivity.newIntent(this, article.getId());
             startActivity(intent);
         } else {
-            Fragment newDetail = NewsDetailFragment.newInstance(article.getArticleId());
+            Fragment newDetail = NewsDetailFragment.newInstance(article.getId());
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.detail_fragment_container, newDetail)
                     .commit();

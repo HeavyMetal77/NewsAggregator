@@ -16,25 +16,25 @@ public class SortNews {
         return sortArticles;
     }
 
-//    public static List<Article> sortByCategory(List<Article> articles, String category) {
-//        List<Article> sortArticles = new ArrayList<>();
-//        for (Article article : articles) {
-//            if (article.getCategory().equals(category)) {
-//                sortArticles.add(article);
-//            }
-//        }
-//        return sortArticles;
-//    }
+    public static List<Article> sortByCategory(List<Article> articles, String category) {
+        List<Article> sortArticles = new ArrayList<>();
+        for (Article article : articles) {
+            if (article.getCategory().equals(category)) {
+                sortArticles.add(article);
+            }
+        }
+        return sortArticles;
+    }
 
-//    public static List<Article> findKeyword(List<Article> articles, String findKeyword) {
-//        List<Article> sortArticles = new ArrayList<>();
-//        for (Article article : articles) {
-//            if (article.getTitle().contains(findKeyword)
-//                    ||article.getDescription().contains(findKeyword)
-//                    || article.getCategory().contains(findKeyword)) {
-//                sortArticles.add(article);
-//            }
-//        }
-//        return sortArticles;
-//    }
+    public static List<Article> findKeyword(List<Article> articles, String findKeyword) {
+        List<Article> sortArticles = new ArrayList<>();
+        for (Article article : articles) {
+            if (article.getTitle().contains(findKeyword)
+                    ||article.getDescription().contains(findKeyword)
+                    || article.getCategory().contains(findKeyword)) {
+                sortArticles.add(article);
+            }
+        }
+        return sortArticles;
+    }
 }

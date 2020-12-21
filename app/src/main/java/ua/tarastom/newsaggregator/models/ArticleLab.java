@@ -3,7 +3,6 @@ package ua.tarastom.newsaggregator.models;
 import android.content.Context;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ArticleLab {
     private static ArticleLab sArticleLab;
@@ -25,10 +24,10 @@ public class ArticleLab {
         articleList.add(article);
     }
 
-    public static Article getArticle(UUID articleId) {
+    public static Article getArticle(int articleId) {
 
         for (Article article : articleList) {
-            if (article.getArticleId().equals(articleId)) {
+            if (article.getId() == articleId) {
                 return article;
             }
         }
@@ -37,5 +36,9 @@ public class ArticleLab {
 
     public static void setArticleList(List<Article> listArticles) {
         articleList = listArticles;
+    }
+
+    public static List<Article> getArticleList() {
+        return articleList;
     }
 }
